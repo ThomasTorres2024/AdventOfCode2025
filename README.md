@@ -1,0 +1,2 @@
+# Advent of Code 2025 
+I didn't get around to this until much later. I wanted to better my CPP skills, so I decided to do it in that language as well as C alongside my other PythonNLA project for the winter break of 2025. 

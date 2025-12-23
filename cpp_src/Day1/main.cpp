@@ -14,13 +14,12 @@
 void problem1(int argc, char *argv[]);
 
 // test function for problem 2, find pass by counting total number of times we cross over 0
-void problem2(int argc, char *argv[]);
+//void problem2(int argc, char *argv[]);
 
 int main(int argc, char *argv[])
 {
-    // Completed, sol works 12/22/25 ~8pm
-    problem1(argc, argv);
 
+    problem1(argc, argv);
     problem2(argc, argv);
 
     return 0;
