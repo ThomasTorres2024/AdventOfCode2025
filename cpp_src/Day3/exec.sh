@@ -7,10 +7,10 @@ test_file=$root/data_p3_test.txt
 test_file_2=$root/data_p3_test_2.txt
 data_file=$root/data_p3.txt
 
-echo "Test: "
-$root/p3.exe $test_file
+# echo "Test: "
+# $root/p3.exe $test_file
 
-echo "--------------------------------------------------------------"
+# echo "--------------------------------------------------------------"
 
 # echo "Test 2: "
 # $root/p3.exe $test_file_2

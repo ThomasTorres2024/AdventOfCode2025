@@ -9,6 +9,7 @@
 #include <sstream>
 #include <vector>  //for storing things, potentially in the future
 #include <fstream> //open up data file
+#include <algorithm>
 #include <cmath>
 
 void problem1(int argc, char *argv[]);
@@ -105,44 +106,41 @@ void problem2(int agrv, char *argv[])
     size_t total = 0;
     for (auto bank : banks)
     {
+        std::vector<int> highest(12);
         size_t start = 0;
-        int remaining = 3;
-        int max = bank.at(0) - '0';
-
-        if (bank.at(1) - '0' > max)
-        {
-            max = bank.at(1) - '0';
-            start = 1;
-            remaining=2;
-        }
-
-        if (bank.at(2) - '0' > max)
-        {
-            max = bank.at(2) - '0';
-            start = 2;
-            remaining=1; 
-        }
-
-        // find max out of indeces 0,1,2 in bank
-
+        int tempMax = bank.at(0) - '0';
+        std::string tempStr = "";
         // iterate over ever number in the bank
-        for (size_t i = 0; i < bank.size(); i++)
+
+        for (size_t i = 0; i < 12; i++)
         {
-            // ensure that the "highest" isn't at the edge
-            if (bank.at(i) - '0' > max && (i != bank.size() - 2))
+
+
+            for (size_t j = start; j < bank.size()-(12-i); j++)
             {
 
-                // change the max and second highest now that we know the order of things
-                max = bank.at(i) - '0';
-                secondHighest = 0;
+                if (bank.at(j) - '0' > tempMax)
+                {
+                    tempMax=bank.at(j)-'0';
+                    start=j; 
+                }
             }
-            else if (bank.at(i) - '0' > secondHighest)
-            {
-                secondHighest = bank.at(i) - '0';
-            }
+            tempStr+=std::to_string(tempMax);
+            tempMax=0; 
+            start++;
         }
+
+        total+=std::stoul(tempStr);
+        // std::cout<<tempStr<<"\n";
+
+        // for (auto h : highest)
+        // {
+        //     std::cout << h;
+        // }
+        // std::cout << "\n";
+
         // std::cout<<max*10+secondHighest<<"\n";
-        total += max * 10 + secondHighest;
+        // total += max * 10 + secondHighest;
     }
 
     std::cout << "Total Joltage: " << total << "\n";
