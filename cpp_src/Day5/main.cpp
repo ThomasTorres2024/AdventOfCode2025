@@ -175,55 +175,7 @@ void problem2(int agrv, char *argv[])
             size_t r1 = std::stoul(first);
             size_t r2 = std::stoul(second);
 
-            // check if
-            bool boundsModified = modifyBounds(&ranges, r1, r2);
-
-            // for (auto r : ranges)
-            // {
-            //     std::cout << r.first << "," << r.second << "\n";
-            // }
-            // std::cout << "-------------------------------\n";
-
-            // if changes were made check for overlapping sets and make them not overlap
-            if (boundsModified)
-            {
-                while (boundsModified)
-                {
-                    bool modified = false; 
-                    std::vector<std::pair<size_t, size_t>> newR;
-                    for (size_t i = 0; i < ranges.size(); i++)
-                    {
-                        boundsModified = modifyBounds(&ranges, ranges.at(i).first, ranges.at(i).second);
-
-
-                        if (!boundsModified)
-                        {
-                            newR.push_back(ranges.at(i));
-                        }
-                        else
-                        {
-                            modified=true; 
-                        }
-                    }
-                    ranges = newR;
-                    boundsModified=modified; 
-                    // std::cout<<"--------------------------\n";
-                    // for (auto r : ranges)
-                    // {
-                    //     // uniquePositions += (r.second - r.first + 1);
-                    //     std::cout << r.first << "," << r.second << "\n";
-                    // }
-
-                    //ans is below: 402801028877238
-                    //ans still lower 
-                    //ans 2nd try:  401548964441210
-                }
-            }
-            // if no changes ocurred, then add a new range into the set
-            else
-            {
-                ranges.push_back(std::make_pair(r1, r2));
-            }
+            ranges.push_back(std::make_pair(r1, r2));
         }
         else
         {
@@ -231,12 +183,42 @@ void problem2(int agrv, char *argv[])
         }
     }
 
+    //sort so we only need to deal with the sec value 
+    std::sort(ranges.begin(), ranges.end());
+
+    // condense ranges here
+    auto curr = ranges.at(0);
+
+    //make new list with all valid pairs 
+    std::vector<std::pair<size_t, size_t>> validRanges;
+
+    //eliminate any overlap in the pairs 
+    for (size_t i = 1; i < ranges.size(); i++)
+    {
+        auto compare = ranges.at(i);
+
+        if (curr.second >= compare.first)
+        {
+            if (compare.second >= curr.second)
+            {
+                curr.second = compare.second;
+            }
+        }
+        else
+        {
+            validRanges.push_back(curr);
+            curr = ranges.at(i);
+
+        }
+    }
+    validRanges.push_back(curr); 
+
     size_t uniquePositions = 0;
 
-    for (auto r : ranges)
+    for (auto r : validRanges)
     {
         uniquePositions += (r.second - r.first + 1);
-        std::cout << r.first << "," << r.second << "\n";
+        // std::cout << r.first << "," << r.second << "\n";
     }
 
     std::cout << "Total: " << uniquePositions << "\n";
