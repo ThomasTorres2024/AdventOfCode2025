@@ -11,16 +11,21 @@
 #include <fstream> //open up data file
 #include <algorithm>
 #include <cmath>
+#include <map> 
 #include <set> // for unique elements
 
 void problem1(int argc, char *argv[]);
 
 void problem2(int argc, char *argv[]);
 
+size_t dfsP2(size_t i, size_t row_ctr, size_t curr_pos,
+             std::set<std::string> *splitLocations, size_t rowLength,
+             std::map<std::string,size_t>* seenIntermediateNotes);
+
 int main(int argc, char *argv[])
 {
-    problem1(argc, argv);
-    // problem2(argc, argv);
+    // problem1(argc, argv);
+    problem2(argc, argv);
 
     return 0;
 }
@@ -129,140 +134,89 @@ void problem2(int agrv, char *argv[])
     // read in data in file as a large line
     std::string line;
 
-    std::vector<std::vector<std::string>> vals;
     std::vector<std::string> data;
-    std::vector<size_t> max;
-    std::vector<std::string> ops;
+    std::set<std::string> splitLocations;
 
     // read data by line
-    bool parseOps = false;
+    size_t rowCtr = 0;
+    std::pair<size_t, size_t> start;
     while (std::getline(dataFile, line))
     {
-
-        // add to data matrix and get matrix of numeric vals
-        std::istringstream sstream(line);
         data.push_back(line);
 
-        std::string s;
-        std::vector<std::string> curr;
+        // std::cout<<line<<"\n";
 
-        while (sstream >> s)
+        // iterate over line, if we find a beam splitter add it to list of beam splitters
+        // if we find starting pos, add it too
+        for (size_t colCtr = 0; colCtr < line.size(); colCtr++)
         {
-            if (s != "+" && s != "*")
+            if (line.at(colCtr) == '^')
             {
-                curr.push_back(s);
+                splitLocations.insert(std::to_string(rowCtr) + "," + std::to_string(colCtr));
             }
-            else
+            else if (line.at(colCtr) == 'S')
             {
-                parseOps = false;
-                ops.push_back(s);
+                start = std::make_pair(rowCtr, colCtr);
             }
         }
 
-        if (!parseOps)
-        {
-            vals.push_back(curr);
-        }
+        // we don't know row size, so increment counter.
+        rowCtr++;
     }
 
-    // obtain col-wise max
-    std::vector<size_t> maxes;
+    std::map<std::string,size_t> seen; 
+    size_t total = dfsP2(0, rowCtr, start.second, &splitLocations, data.at(0).size(),&seen);
 
-    // exterior loop for iterating through each col
-    for (size_t j = 0; j < vals.at(0).size(); j++)
-    {
-        size_t currMax = 0;
-        // go row wise now
-        for (size_t i = 0; i < vals.size() - 1; i++)
-        {
-
-            // get new max idx
-            if (vals.at(i).at(j).size() > currMax)
-            {
-                currMax = vals.at(i).at(j).size();
-            }
-        }
-        maxes.push_back(currMax);
-    }
-
-    size_t prev = 0;
-
-    std::vector<std::vector<std::string>> rowVals;
-
-    // now for each col parse using
-    //  exterior loop for iterating through each col
-    for (size_t j = 0; j < ops.size(); j++)
-    {
-        // std::cout << j << "\n";
-        size_t currMax = maxes.at(j);
-        // go row wise now
-
-        std::vector<std::string> rowNums(currMax, "");
-
-        // values over the cols
-        for (size_t k = 0; k < currMax; k++)
-        {
-            // values for each row
-            for (size_t i = 0; i < vals.size() - 1; i++)
-            {
-
-                // std::cout << "curr max: " << currMax << "\n";
-                // std::cout << data.at(i).at(prev + k) << "\n";
-                // std::cout << i << "," << prev + k << "\n";
-                // std::cout << "------------\n";
-
-                if (data.at(i).at(prev + k) != ' ')
-                {
-                    rowNums.at(k) += data.at(i).at(prev + k);
-                }
-            }
-        }
-
-        // for(auto r : rowNums){
-        //     std::cout<<r<<",";
-        // }
-        // std::cout<<"\n";
-
-        // increment next starting position for the cols
-        prev += currMax + 1;
-        rowVals.push_back(rowNums);
-    }
-
-    size_t total = 0;
-    for (size_t i = 0; i < ops.size(); i++)
-    {
-        std::string op = ops.at(i);
-
-        if (op == "+")
-        {
-            size_t subtotal = 0;
-            for (auto v : rowVals.at(i))
-            {
-                subtotal += std::stoul(v);
-            }
-            total += subtotal;
-        }
-        else
-        {
-            size_t subtotal = 1;
-            for (auto v : rowVals.at(i))
-            {
-                subtotal *= std::stoul(v);
-            }
-            total += subtotal;
-        }
-    }
-
-    // for (auto v : rowVals)
-    // {
-    //     for (auto a : v)
-    //     {
-    //         std::cout << a << ",";
-    //     }
-    //     std::cout << "\n";
-    // }
-
-    std::cout << "Total of Cephalapod Math P2: " << total << "\n";
+    std::cout << "Total of Beams Split : " << total << "\n";
 
     dataFile.close();
+}
+
+size_t dfsP2(size_t i, size_t row_ctr, size_t curr_pos,
+             std::set<std::string> *splitLocations, size_t rowLength, std::map<std::string,size_t> *seen)
+{
+
+    std::string thisString=std::to_string(i)+","+std::to_string(curr_pos);
+
+    // base case for completion
+    if (i == row_ctr)
+    {
+        return 1;
+    }
+    else if(seen->find(thisString)!=seen->end()){
+        
+        return seen->at(thisString); 
+    }
+    else
+    {
+        size_t sum = 0;
+
+        // check if the split location is in the list of beam cols
+        if (splitLocations->find(std::to_string(i) + "," + std::to_string(curr_pos)) != splitLocations->end())
+        {
+
+            // left branch
+            if (curr_pos != 0)
+            {
+                sum += dfsP2(i + 1, row_ctr, curr_pos - 1, splitLocations, rowLength,seen);
+            }
+
+            // right branch
+            if (curr_pos + 1 < rowLength)
+            {
+                sum += dfsP2(i + 1, row_ctr, curr_pos + 1, splitLocations, rowLength,seen);
+            }
+
+            seen->insert({thisString, sum});  
+            
+        }
+        // no splitter
+        else
+        {
+            sum += dfsP2(i + 1, row_ctr, curr_pos, splitLocations, rowLength,seen);
+            seen->insert({thisString, sum}); 
+        }
+
+        return sum;
+    }
 }
