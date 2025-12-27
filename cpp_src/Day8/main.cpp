@@ -56,7 +56,7 @@ struct vec3
     }
 };
 
-int dist(vec3 *a, vec3 *b);
+double dist(vec3 *a, vec3 *b);
 
 /**
  * @brief
@@ -90,10 +90,10 @@ void problem1(int agrv, char *argv[])
         vecs.push_back({std::stoi(first), std::stoi(second), std::stoi(third)});
     }
 
-    std::vector<int> correspondingIndeces(vecs.size());
+    std::vector<double> correspondingIndeces(vecs.size());
 
     // keep record of dists
-    std::vector<std::pair<int, std::pair<size_t, size_t>>> shortestDists;
+    std::vector<std::pair<double, std::pair<size_t, size_t>>> shortestDists;
     // std::set<std::pair<int, std::pair<size_t, size_t>>> shortestDistsSet;
 
     // calculate vectors that minimize dist
@@ -101,7 +101,7 @@ void problem1(int agrv, char *argv[])
     {
         auto vec1 = vecs.at(i);
         size_t minIdx = i;
-        int minVal = std::numeric_limits<int>::max();
+        double minVal = std::numeric_limits<double>::max();
         for (size_t j = 0; j < vecs.size(); j++)
         {
 
@@ -113,94 +113,104 @@ void problem1(int agrv, char *argv[])
                 minIdx = j;
             }
         }
-        correspondingIndeces.at(i) = minIdx;
         shortestDists.push_back(std::make_pair(minVal, std::make_pair(i, minIdx)));
-        // std::cout<<minVal<<"\n";
-        // std::cout<<"I: " << i << ", J: " << minIdx <<"\n";
-        // std::cout << vecs.at(minIdx).x << "," << vecs.at(minIdx).y << "," << vecs.at(minIdx).z << "\n";
-        // std::cout<<"----------------------------------------------\n";
     }
 
-    // for(auto v : vecToMin){
-    //     std::cout<<v.first.x <<","<<v.first.y <<","<<v.first.z <<":"<<
-    // }
-
-    // sort distances
     std::sort(shortestDists.begin(), shortestDists.end());
 
-    // for (auto idxAndVecs : shortestDists)
-    // {
-    //     std::cout << idxAndVecs.first << "\n";
-
-    //     std::cout<<"I: " << idxAndVecs.second.first << ", J: " << idxAndVecs.second.second <<"\n";
-
-    //     auto v = vecs.at(idxAndVecs.second.first);
-    //     auto p = vecs.at(idxAndVecs.second.second);
-    //     std::string hashableVec = std::to_string(v.x) + "," + std::to_string(v.y) + "," + std::to_string(v.z);
-    //     std::string hashableShortest = std::to_string(p.x) + "," + std::to_string(p.y) + "," + std::to_string(p.z);
-
-    //     std::cout << hashableVec << "\n";
-    //     std::cout << hashableShortest << "\n";
-    //     std::cout << "-------------\n";
-    // }
 
 
     size_t ITERATIONS = 10;
     std::set<std::set<std::string>> circuits;
-    for(size_t j = 0; j < vecs.size();j++){
+    for (size_t j = 0; j < vecs.size(); j++)
+    {
         auto v = vecs.at(j);
         circuits.insert({std::to_string(v.x) + "," + std::to_string(v.y) + "," + std::to_string(v.z)});
     }
 
-    size_t i = 0;
-    while (ITERATIONS > 0)
+    //begin putting items into respective groups
+    for(size_t i = 0; i < vecs.size();i++)
     {
 
-        std::cout << i << "\n";
+        // std::cout << i << "\n";
+        std::cout << "Iterations: " << ITERATIONS << "\n";
 
         auto idxAndVecs = shortestDists.at(i);
+        // std::cout<<"Dist: "<<idxAndVecs.first<<"\n";
 
         auto v = vecs.at(idxAndVecs.second.first);
         auto p = vecs.at(idxAndVecs.second.second);
 
-        std::string hashableVec = std::to_string(v.x) + "," + std::to_string(v.y) + "," + std::to_string(v.z);
-        std::string hashableShortest = std::to_string(p.x) + "," + std::to_string(p.y) + "," + std::to_string(p.z);
-        bool notFound = true;
+        std::string vec1 = std::to_string(v.x) + "," + std::to_string(v.y) + "," + std::to_string(v.z);
+        std::string vec2 = std::to_string(p.x) + "," + std::to_string(p.y) + "," + std::to_string(p.z);
+        // bool notFound = true;
 
         // std::cout << idxAndVecs.first << "\n";
         // std::cout << hashableVec << "\n";
         // std::cout << hashableShortest << "\n";
         // std::cout << "-------------\n";
 
-        for(auto circuit : circuits){
-            if(circuit.find())
+        auto circuitWithV1 = *circuits.begin();
+        auto circuitWithV2 = *circuits.begin();
+
+        bool firstNotFound=true;
+        bool secondNotFound=true; 
+
+        //loop through the set of all circuits, try to find the one that has
+        //vec1, and the one that has vec2 
+        for (auto circuit : circuits)
+        {
+
+            //obtain circuit which has v1 
+            if(firstNotFound){
+                if (circuit.find(vec1) != circuit.end())
+                {
+                    circuitWithV1=circuit;
+                    firstNotFound=false; 
+                }
+                
+            }
+
+            //obtain circuit which has v2 
+            if(secondNotFound){
+                if (circuit.find(vec2) != circuit.end())
+                {
+                    circuitWithV2=circuit;
+                    secondNotFound=false; 
+                }
+            }   
+
+            //break if both are found
+            if(!firstNotFound && !secondNotFound){
+                break; 
+            }
         }
 
-        for (size_t j = 0; j < circuits.size(); j++)
+        //if sets unequal merge both of them 
+        if(circuitWithV1!=circuitWithV2)
         {
-            // case add second
-            auto circuit = circuits.at(j);
-            if (circuit.find(hashableVec) != circuit.end() && circuit.find(hashableShortest) != circuit.end())
-            {
-                notFound = false;
-                break;
+            std::set<std::string> newCircuit; 
+            //merge both of the sets into new circuit, and then remove them
+            for(auto c : circuitWithV1){
+                newCircuit.insert(c);
             }
-            else if (circuit.find(hashableVec) != circuit.end() || circuit.find(hashableShortest) != circuit.end())
-            {
-                circuits.at(j).insert(hashableVec);
-                circuits.at(j).insert(hashableShortest);
-                notFound = false;
-                ITERATIONS--;
-                break;
+
+            for(auto c : circuitWithV2){
+                newCircuit.insert(c);
             }
+
+            //erase both of the sets and add a new one in 
+            circuits.erase(circuitWithV1);
+            circuits.erase(circuitWithV2);
+            circuits.insert(newCircuit);
+            ITERATIONS--; 
         }
-        // if no matches are found, then add it to a new circuit
-        if (notFound)
-        {
-            circuits.push_back({hashableVec, hashableShortest});
-            ITERATIONS--;
+
+        //terminate when all iterations are done. 
+        if(ITERATIONS==0){
+            break; 
         }
-        i++;
+
     }
 
     // size_t ITERATIONS = 10;
@@ -261,7 +271,7 @@ void problem1(int agrv, char *argv[])
     }
 
     std::sort(circuitSizes.begin(), circuitSizes.end());
-
+    
     for (size_t i = 0; i < circuitSizes.size(); i++)
     {
         std::cout << i << ".)" << circuitSizes.at(i) << "\n";
@@ -334,7 +344,7 @@ void problem2(int agrv, char *argv[])
  * @param[in] b - vec 2
  * @return euclidean dist between both vectors
  */
-int dist(vec3 *a, vec3 *b)
+double dist(vec3 *a, vec3 *b)
 {
     return sqrt(std::pow((a->x - b->x), 2) + std::pow((a->y - b->y), 2) + std::pow((a->z - b->z), 2));
 }
