@@ -1,6 +1,7 @@
 /**
  * @brief Advent of Code Day 8
- * @date 12/24/25
+ * (Didn't finish it.)
+ * @date 12/27/25
  * @author Thomas Torres
  **/
 
@@ -213,55 +214,6 @@ void problem1(int agrv, char *argv[])
 
     }
 
-    // size_t ITERATIONS = 10;
-    // std::vector<std::set<std::string>> circuits;
-
-    // size_t i = 0;
-    // while (ITERATIONS > 0)
-    // {
-
-    //     std::cout << i << "\n";
-
-    //     auto idxAndVecs = shortestDists.at(i);
-
-    //     auto v = vecs.at(idxAndVecs.second.first);
-    //     auto p = vecs.at(idxAndVecs.second.second);
-
-    //     std::string hashableVec = std::to_string(v.x) + "," + std::to_string(v.y) + "," + std::to_string(v.z);
-    //     std::string hashableShortest = std::to_string(p.x) + "," + std::to_string(p.y) + "," + std::to_string(p.z);
-    //     bool notFound = true;
-
-    //     // std::cout << idxAndVecs.first << "\n";
-    //     // std::cout << hashableVec << "\n";
-    //     // std::cout << hashableShortest << "\n";
-    //     // std::cout << "-------------\n";
-
-    //     for (size_t j = 0; j < circuits.size(); j++)
-    //     {
-    //         // case add second
-    //         auto circuit = circuits.at(j);
-    //         if (circuit.find(hashableVec) != circuit.end() && circuit.find(hashableShortest) != circuit.end())
-    //         {
-    //             notFound = false;
-    //             break;
-    //         }
-    //         else if (circuit.find(hashableVec) != circuit.end() || circuit.find(hashableShortest) != circuit.end())
-    //         {
-    //             circuits.at(j).insert(hashableVec);
-    //             circuits.at(j).insert(hashableShortest);
-    //             notFound = false;
-    //             ITERATIONS--;
-    //             break;
-    //         }
-    //     }
-    //     // if no matches are found, then add it to a new circuit
-    //     if (notFound)
-    //     {
-    //         circuits.push_back({hashableVec, hashableShortest});
-    //         ITERATIONS--;
-    //     }
-    //     i++;
-    // }
 
     // get list of circuit sizes and sort them
     std::vector<int> circuitSizes;
